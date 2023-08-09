@@ -318,7 +318,7 @@ const modal = async (url) => {
     return { id: 'modal.saveButtonMissing' };
   }
 
-  const dialog = await page.evaluate((button) => {
+  let dialog = await page.evaluate((button) => {
     button.click();
     return document.querySelector('dialog');
   }, elements[elements.length - 1]);
@@ -327,10 +327,32 @@ const modal = async (url) => {
     return { id: 'modal.dialogMissing' };
   }
 
-  const [display] = await getStyle(page, 'dialog', ['display']);
+  let [display] = await getStyle(page, 'dialog', ['display']);
 
   if (display === 'none') {
     return { id: 'modal.notShown' };
+  }
+
+  const buttonEng = await page.$x("/html/body//*[contains(translate(., 'OK', 'ok'), 'ok')]");
+  const buttonRus = await page.$x("/html/body//*[contains(translate(., 'ОК', 'ок'), 'ок')]");
+  let buttonOk;
+
+  if (buttonEng.length > 0) {
+    buttonOk = buttonEng[buttonEng.length - 1];
+  } else if (buttonRus.length > 0) {
+    buttonOk = buttonRus[buttonRus.length - 1];
+  } else {
+    return { id: 'modal.okButtonMissing' };
+  }
+
+  dialog = await page.evaluate((button) => {
+    button.click();
+    return document.querySelector('dialog');
+  }, buttonOk);
+  [display] = await getStyle(page, 'dialog', ['display']);
+
+  if (display !== 'none' && dialog) {
+    return { id: 'modal.notHidden' };
   }
 
   await browser.close();
