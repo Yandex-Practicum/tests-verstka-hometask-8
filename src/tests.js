@@ -306,6 +306,38 @@ const supports = (styleCode) => {
   return false;
 };
 
+const modal = async (url) => {
+  const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+  const viewport = { width: 1440, height: 1080 };
+  const { browser, page } = await launchBrowser(url, { launchOptions, viewport });
+
+  const elements = await page.$x("/html/body//*[contains(translate(., 'СОХРАНИТЬ', 'сохранить'), 'сохранить')]");
+
+  if (elements.length === 0) {
+    await browser.close();
+    return { id: 'modal.saveButtonMissing' };
+  }
+
+  const dialog = await page.evaluate((button) => {
+    button.click();
+    return document.querySelector('dialog');
+  }, elements[elements.length - 1]);
+
+  if (!dialog) {
+    return { id: 'modal.dialogMissing' };
+  }
+
+  const [display] = await getStyle(page, 'dialog', ['display']);
+
+  if (display === 'none') {
+    return { id: 'modal.notShown' };
+  }
+
+  await browser.close();
+
+  return false;
+};
+
 export {
   colorScheme,
   switchScheme,
@@ -319,4 +351,5 @@ export {
   background,
   filters,
   supports,
+  modal,
 };

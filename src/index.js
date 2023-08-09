@@ -26,6 +26,7 @@ import {
   background,
   filters,
   supports,
+  modal,
 } from './tests.js';
 import {
   getStyleCode,
@@ -90,6 +91,7 @@ const app = async (projectPath, lng) => {
       background(page),
       filters(page),
       supports(styleCode),
+      modal(baseUrl),
     ]))
       .filter(Boolean)
       .flat();
