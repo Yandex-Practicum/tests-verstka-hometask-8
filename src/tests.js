@@ -1,17 +1,10 @@
 import fs from 'fs';
 import * as csstree from 'css-tree';
-import palette from 'image-palette';
-import pixels from 'image-pixels';
 import {
   launchBrowser,
   hasElementBySelectors,
   getStyle,
-  getStyles,
 } from 'lib-verstka-tests';
-import {
-  sortColors,
-  compareColors,
-} from './utils.js';
 
 const colorScheme = async (page) => {
   const isFound = await hasElementBySelectors(page, 'meta[name=color-scheme]:is([content~="dark"]):is([content~="light"])');
@@ -33,6 +26,7 @@ const switchScheme = async (url) => {
   const hasButton = await hasElementBySelectors(page, buttonSelector);
 
   if (!hasButton) {
+    await browser.close();
     return {
       id: 'switchButtonsChanged',
     };
@@ -324,12 +318,14 @@ const modal = async (url) => {
   }, elements[elements.length - 1]);
 
   if (!dialog) {
+    await browser.close();
     return { id: 'modal.dialogMissing' };
   }
 
   let [display] = await getStyle(page, 'dialog', ['display']);
 
   if (display === 'none') {
+    await browser.close();
     return { id: 'modal.notShown' };
   }
 
@@ -342,6 +338,7 @@ const modal = async (url) => {
   } else if (buttonRus.length > 0) {
     buttonOk = buttonRus[buttonRus.length - 1];
   } else {
+    await browser.close();
     return { id: 'modal.okButtonMissing' };
   }
 
@@ -352,6 +349,7 @@ const modal = async (url) => {
   [display] = await getStyle(page, 'dialog', ['display']);
 
   if (display !== 'none' && dialog) {
+    await browser.close();
     return { id: 'modal.notHidden' };
   }
 
