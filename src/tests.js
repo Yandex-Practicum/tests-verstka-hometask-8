@@ -346,7 +346,7 @@ const modal = async (url) => {
     button.click();
     return document.querySelector('dialog');
   }, buttonOk);
-  page.waitForTimeout(5000);
+  await page.waitForTimeout(5000);
   [display] = await getStyle(page, 'dialog', ['display']);
 
   if (display !== 'none' && dialog) {
