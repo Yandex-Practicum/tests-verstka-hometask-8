@@ -306,53 +306,64 @@ const modal = async (url) => {
   const viewport = { width: 1440, height: 1080 };
   const { browser, page } = await launchBrowser(url, { launchOptions, viewport });
 
-  const elements = await page.$x("/html/body//*[contains(translate(., 'СОХРАНИТЬ', 'сохранить'), 'сохранить')]");
+  try {
+    const elements = await page.$x("/html/body//*[contains(translate(., 'СОХРАНИТЬ', 'сохранить'), 'сохранить')]");
 
-  if (elements.length === 0) {
+    if (elements.length === 0) {
+      await browser.close();
+      return { id: 'modal.saveButtonMissing' };
+    }
+
+    let dialog = await page.evaluate((button) => {
+      button.click();
+      return document.querySelector('dialog');
+    }, elements[elements.length - 1]);
+
+    if (!dialog) {
+      await browser.close();
+      return { id: 'modal.dialogMissing' };
+    }
+
+    let [display] = await getStyle(page, 'dialog', ['display']);
+
+    if (display === 'none') {
+      await browser.close();
+      return { id: 'modal.notShown' };
+    }
+
+    const buttonEng = await page.$x("/html/body//*[contains(translate(., 'OK', 'ok'), 'ok')]");
+    const buttonRus = await page.$x("/html/body//*[contains(translate(., 'ОК', 'ок'), 'ок')]");
+    let buttonOk;
+
+    if (buttonEng.length > 0) {
+      buttonOk = buttonEng[buttonEng.length - 1];
+    } else if (buttonRus.length > 0) {
+      buttonOk = buttonRus[buttonRus.length - 1];
+    } else {
+      await browser.close();
+      return { id: 'modal.okButtonMissing' };
+    }
+
+    dialog = await page.evaluate((button) => {
+      button.click();
+      return document.querySelector('dialog');
+    }, buttonOk);
+    await setTimeout(10000);
+    [display] = await getStyle(page, 'dialog', ['display']);
+
+    if (display !== 'none' && dialog) {
+      await browser.close();
+      return { id: 'modal.notHidden' };
+    }
+  } catch (error) {
     await browser.close();
-    return { id: 'modal.saveButtonMissing' };
-  }
 
-  let dialog = await page.evaluate((button) => {
-    button.click();
-    return document.querySelector('dialog');
-  }, elements[elements.length - 1]);
-
-  if (!dialog) {
-    await browser.close();
-    return { id: 'modal.dialogMissing' };
-  }
-
-  let [display] = await getStyle(page, 'dialog', ['display']);
-
-  if (display === 'none') {
-    await browser.close();
-    return { id: 'modal.notShown' };
-  }
-
-  const buttonEng = await page.$x("/html/body//*[contains(translate(., 'OK', 'ok'), 'ok')]");
-  const buttonRus = await page.$x("/html/body//*[contains(translate(., 'ОК', 'ок'), 'ок')]");
-  let buttonOk;
-
-  if (buttonEng.length > 0) {
-    buttonOk = buttonEng[buttonEng.length - 1];
-  } else if (buttonRus.length > 0) {
-    buttonOk = buttonRus[buttonRus.length - 1];
-  } else {
-    await browser.close();
-    return { id: 'modal.okButtonMissing' };
-  }
-
-  dialog = await page.evaluate((button) => {
-    button.click();
-    return document.querySelector('dialog');
-  }, buttonOk);
-  await setTimeout(5000);
-  [display] = await getStyle(page, 'dialog', ['display']);
-
-  if (display !== 'none' && dialog) {
-    await browser.close();
-    return { id: 'modal.notHidden' };
+    return {
+      id: 'testsError',
+      values: {
+        message: 'Убедитесь, что страница не перезагружается при взаимодействии с кнопками: Сохранить на память, ОК.',
+      },
+    };
   }
 
   await browser.close();
