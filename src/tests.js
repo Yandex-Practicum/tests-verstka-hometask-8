@@ -23,6 +23,7 @@ const switchScheme = async (url) => {
   const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
   const viewport = { width: 1440, height: 1080 };
   const { browser, page } = await launchBrowser(url, { launchOptions, viewport });
+  await setTimeout(10000);
   const buttonSelector = '.theme-menu__item:first-child .theme-menu__button';
   const hasButton = await hasElementBySelectors(page, buttonSelector);
 
@@ -305,6 +306,7 @@ const modal = async (url) => {
   const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
   const viewport = { width: 1440, height: 1080 };
   const { browser, page } = await launchBrowser(url, { launchOptions, viewport });
+  await setTimeout(10000);
 
   try {
     const elements = await page.$x("/html/body//*[contains(translate(., 'СОХРАНИТЬ', 'сохранить'), 'сохранить')]");
