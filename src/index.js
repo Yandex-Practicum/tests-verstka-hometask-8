@@ -71,6 +71,7 @@ const app = async (projectPath, lng) => {
     const viewport = { width: 1440, height: 1080 };
     const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
     const { browser, page } = await launchBrowser(baseUrl, { launchOptions, viewport });
+    page.waitForTimeout(10000);
     const styleCode = getStyleCode(projectPath);
     let errors;
     try {
