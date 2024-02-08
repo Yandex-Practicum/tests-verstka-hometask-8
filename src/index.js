@@ -72,29 +72,41 @@ const app = async (projectPath, lng) => {
     const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
     const { browser, page } = await launchBrowser(baseUrl, { launchOptions, viewport });
     const styleCode = getStyleCode(projectPath);
-    const errors = (await Promise.all([
-      w3c(projectPath, 'index.html'),
-      stylelint(projectPath),
-      orderStyles(page, ['fonts.css', 'globals.css']),
-      lang(page, lng),
-      titleEmmet(page),
-      colorScheme(page),
-      switchScheme(baseUrl),
-      semanticTags(page, ['header', 'main', 'nav']),
-      horizontalScroll(page),
-      fonts(path.join(projectPath, 'fonts', 'fonts.css'), ['Inter', 'PressStart2P']),
-      variantFontFormats(path.join(projectPath, 'fonts', 'fonts.css'), 'Inter'),
-      variantFontWeight(path.join(projectPath, 'fonts', 'fonts.css'), 'Inter'),
-      varsDeclAndUsage(styleCode),
-      fontVariationSettings(styleCode),
-      transition(styleCode),
-      background(page),
-      filters(page),
-      supports(styleCode),
-      modal(baseUrl),
-    ]))
-      .filter(Boolean)
-      .flat();
+    let errors;
+    try {
+      errors = (await Promise.all([
+        w3c(projectPath, 'index.html'),
+        stylelint(projectPath),
+        orderStyles(page, ['fonts.css', 'globals.css']),
+        lang(page, lng),
+        titleEmmet(page),
+        colorScheme(page),
+        switchScheme(baseUrl),
+        semanticTags(page, ['header', 'main', 'nav']),
+        horizontalScroll(page),
+        fonts(path.join(projectPath, 'fonts', 'fonts.css'), ['Inter', 'PressStart2P']),
+        variantFontFormats(path.join(projectPath, 'fonts', 'fonts.css'), 'Inter'),
+        variantFontWeight(path.join(projectPath, 'fonts', 'fonts.css'), 'Inter'),
+        varsDeclAndUsage(styleCode),
+        fontVariationSettings(styleCode),
+        transition(styleCode),
+        background(page),
+        filters(page),
+        supports(styleCode),
+        modal(baseUrl),
+      ]))
+        .filter(Boolean)
+        .flat();
+    } catch (error) {
+      errors = [
+        {
+          id: 'testsError',
+          values: {
+            message: error.message,
+          },
+        },
+      ];
+    }
 
     await browser.close();
 
