@@ -95,7 +95,7 @@ const app = async (projectPath, lng) => {
         background(page),
         filters(page),
         supports(styleCode),
-        modal(baseUrl),
+        // modal(baseUrl),
       ]))
         .filter(Boolean)
         .flat();
