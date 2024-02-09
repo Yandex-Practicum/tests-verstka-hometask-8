@@ -71,7 +71,20 @@ const app = async (projectPath, lng) => {
     const baseUrl = 'http://localhost:3000';
     const viewport = { width: 1440, height: 1080 };
     const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
-    const { browser, page } = await launchBrowser(baseUrl, { launchOptions, viewport });
+    let browser;
+    let page;
+
+    try {
+      ({ browser, page } = await launchBrowser(baseUrl, { launchOptions, viewport }));
+    } catch (error) {
+      return {
+        id: 'testsError',
+        values: {
+          message: error.message,
+        },
+      };
+    }
+
     await setTimeout(5000);
     const styleCode = getStyleCode(projectPath);
     let errors;
@@ -84,7 +97,7 @@ const app = async (projectPath, lng) => {
         lang(page, lng),
         titleEmmet(page),
         colorScheme(page),
-        // switchScheme(baseUrl),
+        switchScheme(baseUrl),
         semanticTags(page, ['header', 'main', 'nav']),
         horizontalScroll(page),
         fonts(path.join(projectPath, 'fonts', 'fonts.css'), ['Inter', 'PressStart2P']),
@@ -96,7 +109,7 @@ const app = async (projectPath, lng) => {
         background(page),
         filters(page),
         supports(styleCode),
-        // modal(baseUrl),
+        modal(baseUrl),
       ]))
         .filter(Boolean)
         .flat();
