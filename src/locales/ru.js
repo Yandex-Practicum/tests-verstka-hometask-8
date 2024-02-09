@@ -18,6 +18,7 @@ export default {
     },
     supports: 'Поддержка `text-stroke` и `-webkit-text-stroke` не проверена директивой `@supports`.',
     modal: {
+      formMissing: 'В модальном окне не найдена форма с методом `dialog`.',
       saveButtonMissing: 'Не найдена кнопка "Сохранить на память".',
       dialogMissing: 'Модальное окно сделать с помощью элемента `dialog`.',
       notShown: 'Модальное окно появляется при клике на кнопку "Сохранить на память". Меняйте свойство `display` у диалога в состоянии `opened`.',

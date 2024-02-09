@@ -306,9 +306,15 @@ const modal = async (url) => {
   const launchOptions = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
   const viewport = { width: 1440, height: 1080 };
   const { browser, page } = await launchBrowser(url, { launchOptions, viewport });
-  await setTimeout(10000);
+  await setTimeout(5000);
 
   try {
+    const hasForm = await hasElementBySelectors(page, 'form[method=dialog]');
+    if (!hasForm) {
+      await browser.close();
+      return { id: 'modal.formMissing' };
+    }
+
     const elements = await page.$x("/html/body//*[contains(translate(., 'СОХРАНИТЬ', 'сохранить'), 'сохранить')]");
 
     if (elements.length === 0) {
@@ -333,30 +339,30 @@ const modal = async (url) => {
       return { id: 'modal.notShown' };
     }
 
-    // const buttonEng = await page.$x("/html/body//*[contains(translate(., 'OK', 'ok'), 'ok')]");
-    // const buttonRus = await page.$x("/html/body//*[contains(translate(., 'ОК', 'ок'), 'ок')]");
-    // let buttonOk;
+    const buttonEng = await page.$x("/html/body//*[contains(translate(., 'OK', 'ok'), 'ok')]");
+    const buttonRus = await page.$x("/html/body//*[contains(translate(., 'ОК', 'ок'), 'ок')]");
+    let buttonOk;
 
-    // if (buttonEng.length > 0) {
-    //   buttonOk = buttonEng[buttonEng.length - 1];
-    // } else if (buttonRus.length > 0) {
-    //   buttonOk = buttonRus[buttonRus.length - 1];
-    // } else {
-    //   await browser.close();
-    //   return { id: 'modal.okButtonMissing' };
-    // }
+    if (buttonEng.length > 0) {
+      buttonOk = buttonEng[buttonEng.length - 1];
+    } else if (buttonRus.length > 0) {
+      buttonOk = buttonRus[buttonRus.length - 1];
+    } else {
+      await browser.close();
+      return { id: 'modal.okButtonMissing' };
+    }
 
-    // dialog = await page.evaluate((button) => {
-    //   button.click();
-    //   return document.querySelector('dialog');
-    // }, buttonOk);
-    // await setTimeout(10000);
-    // [display] = await getStyle(page, 'dialog', ['display']);
+    dialog = await page.evaluate((button) => {
+      button.click();
+      return document.querySelector('dialog');
+    }, buttonOk);
+    await setTimeout(1000);
+    [display] = await getStyle(page, 'dialog', ['display']);
 
-    // if (display !== 'none' && dialog) {
-    //   await browser.close();
-    //   return { id: 'modal.notHidden' };
-    // }
+    if (display !== 'none' && dialog) {
+      await browser.close();
+      return { id: 'modal.notHidden' };
+    }
   } catch (error) {
     await browser.close();
 
