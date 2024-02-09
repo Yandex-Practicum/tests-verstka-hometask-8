@@ -84,7 +84,7 @@ const app = async (projectPath, lng) => {
         lang(page, lng),
         titleEmmet(page),
         colorScheme(page),
-        switchScheme(baseUrl),
+        // switchScheme(baseUrl),
         semanticTags(page, ['header', 'main', 'nav']),
         horizontalScroll(page),
         fonts(path.join(projectPath, 'fonts', 'fonts.css'), ['Inter', 'PressStart2P']),
