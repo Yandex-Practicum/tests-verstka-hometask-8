@@ -76,6 +76,7 @@ const app = async (projectPath, lng) => {
     const styleCode = getStyleCode(projectPath);
     let errors;
     try {
+      console.log('start testing');
       errors = (await Promise.all([
         w3c(projectPath, 'index.html'),
         stylelint(projectPath),
